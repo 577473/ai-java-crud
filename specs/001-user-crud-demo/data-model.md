@@ -38,9 +38,9 @@
 
 - **CREATE**: Admin creates user → all fields mandatory → assigned role
 - **READ**: User reads own profile (any role) / Admin reads any profile
-- **UPDATE (self)**: User updates firstName, lastName, email, password. Username and role immutable.
-- **UPDATE (admin)**: Admin updates any field of any user (including username and role). Only existing admin can grant admin role.
-- **DELETE**: Admin deletes any user. Self-deletion terminates admin session.
+- **UPDATE (self)**: User updates firstName, lastName, email, password (any combination). Username and role in request body are rejected with error.
+- **UPDATE (admin)**: Admin updates any field of any user (any combination, including username and role). Only existing admin can grant admin role.
+- **DELETE**: Admin deletes any non-protected user. Self-deletion is rejected with error. Deletion of the last remaining admin is rejected with error.
 
 ### Seed Data
 

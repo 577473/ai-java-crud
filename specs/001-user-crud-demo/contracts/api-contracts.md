@@ -88,7 +88,7 @@ Update the authenticated user's own profile.
 }
 ```
 
-**Notes:** Username and role fields are ignored for non-admin users. Role cannot be changed by regular user. Password change requires the new password (current password verification handled server-side). Empty or invalid fields trigger validation errors.
+**Notes:** Any combination of fields may be sent; absent fields remain unchanged (partial update). Username and role fields in the request body are rejected with a validation error — they cannot be changed by the user on their own profile. Password change requires the new password (current password verification handled server-side). Invalid fields trigger validation errors.
 
 **Response 200 (Success):**
 ```json
@@ -212,7 +212,7 @@ Update any user's profile (including username and role).
 }
 ```
 
-**Notes:** Only existing admins can set role to "admin". All fields optional on update but if provided they must be valid.
+**Notes:** Any combination of fields may be sent; absent fields remain unchanged (partial update). Only existing admins can set role to "admin". If provided, each field must be valid.
 
 **Response 200:** Updated user object.
 
@@ -227,6 +227,19 @@ Delete a user by ID.
 **Headers:** `Authorization: Bearer <token>` (admin role required)
 
 **Response 204:** No content (successful deletion).
+
+**Response 400 (Protected Account):**
+```json
+{
+  "error": "Cannot delete your own account"
+}
+```
+or
+```json
+{
+  "error": "System must retain at least one admin account"
+}
+```
 
 **Response 404:** User not found.
 

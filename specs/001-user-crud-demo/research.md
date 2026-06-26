@@ -58,11 +58,11 @@
 - **Decision**: Add a `// Default implementation provided by Spring Data JPA` comment on `UserRepository extends JpaRepository` and similar auto-configured declarations
 - **Rationale**: User-specified. Clarifies that the framework provides the default implementation behind the interface, aiding developer understanding.
 
-### Validation: Jakarta Bean Validation (JSR-380)
+### Validation: Jakarta Bean Validation (JSR-380) with Groups
 
-- **Decision**: Use `@Valid` + annotations (`@NotBlank`, `@Email`, `@Size`) on DTOs
-- **Rationale**: Standard Spring Boot validation. Catches invalid state before service layer as required by FR-017.
-- **Alternatives considered**: Manual validation in service layer (redundant with JSR).
+- **Decision**: Use `@Validated` with validation groups (`Default` + `ValidationGroups.OnCreate`) on DTOs. `@NotBlank` restricted to `OnCreate` group. Format annotations (`@Email`, `@Size`, `@Pattern`) remain in `Default` group.
+- **Rationale**: Standard Spring Boot validation. Group separation allows full validation on create (all fields required) and partial validation on update (only fields present). The service layer applies `== null` checks to skip absent fields. Catches invalid state before persistence as required by FR-017.
+- **Alternatives considered**: Separate DTOs for create vs update (more duplication); `@Valid` only (rejects partial updates); manual service validation (bypasses JSR declarative checks).
 
 ### Package Manager: pnpm
 
@@ -80,9 +80,10 @@
 
 - Passwords stored as BCrypt hashes (Spring Security's built-in PasswordEncoder)
 - JWT signed with HMAC-SHA256 using a configurable secret
-- JWT expiration: 24 hours (reasonable for demo)
+- JWT access token expiration: 5 minutes (FR-001). Refresh token: 30 minutes (FR-018). Refresh token rotated on each use.
 - Endpoint authorization:
   - `POST /api/auth/login` — public
+  - `POST /api/auth/refresh` — authenticated (valid refresh token)
   - `GET /api/users/me` — authenticated (any role)
   - `PUT /api/users/me` — authenticated (any role)
   - `GET /api/users` — ADMIN only

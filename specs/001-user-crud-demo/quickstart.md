@@ -23,7 +23,7 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-The backend starts with H2 in-memory database. Seed data (admin + 4 mock users) is loaded automatically.
+The backend starts with H2 in-memory database. Seed data (admin + 5 mock users) is loaded automatically.
 
 ### Frontend
 
@@ -81,7 +81,17 @@ ng serve
 3. Leave all fields empty and submit
 4. **Expected**: Validation error notifications appear for each required field
 
-### Scenario 6: API via Postman
+### Scenario 6: Admin Self-Deletion Protection
+
+1. Log in as admin
+2. Go to User Management
+3. Find your own account (admin) in the user list
+4. **Expected**: Delete button is hidden or disabled for your own row
+5. If another admin exists, attempt to delete that admin until only one remains
+6. Try to delete or change the role of the last remaining admin
+7. **Expected**: Request is rejected with an error notification
+
+### Scenario 7: API via Postman
 
 1. Import `specs/001-user-crud-demo/contracts/javacrud-postman-collection.json` into Postman
 2. Run "Login" request → token is auto-stored as collection variable
@@ -96,6 +106,7 @@ ng serve
 | jsmith | Password123! | user |
 | alex_m | Password123! | user |
 | sara_c | Password123! | user |
+| mike_w | Password123! | user |
 
 ## API Documentation
 

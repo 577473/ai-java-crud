@@ -24,6 +24,14 @@
 
 - Q: Package manager for Node.js dependencies. → A: Use pnpm exclusively for all Node.js operations (install, add, Angular CLI). npm MUST NOT be used. Rationale: pnpm prevents auto-execution of scripts for security.
 
+### Session 2026-06-26 (evening)
+
+- Q: Partial updates — what fields can be sent on PUT /users/me and PUT /users/{id}? → A: Any combination of updatable fields (firstName, lastName, email, password) is accepted. Username and role are never changeable by the user on their own profile. Admin can also send role on PUT /users/{id}. Unaffected fields remain unchanged. Validation only applies to fields actually present in the request body.
+
+### Session 2026-06-26 (night)
+
+- Q: Admin self-deletion and at-least-one-admin guarantee? → A: System MUST prevent any operation (delete or role change) that would leave zero admin accounts. Admin cannot delete themselves. Another admin cannot delete or role-change the last remaining admin. The delete button MUST be hidden/disabled for protected accounts in the UI alongside backend rejection.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Admin Login and User Management (Priority: P1)
@@ -44,6 +52,8 @@ As an administrator, I want to log in and manage all user accounts (create, read
 6. **Given** an admin is editing a regular user's profile, **When** they change the user's role from "user" to "admin" and submit, **Then** the role change is saved and the user gains admin privileges.
 7. **Given** a regular user is on their profile edit page, **When** they try to change their own role to "admin", **Then** the change is rejected with an authorization error notification.
 8. **Given** the admin is viewing another user's account, **When** they delete that user, **Then** the user is removed from the system and a confirmation notification is shown.
+9. **Given** the admin is viewing their own account in the user list, **When** they attempt to delete their own account, **Then** the action is rejected with an error notification explaining that admins cannot delete themselves.
+10. **Given** an admin is viewing the only remaining admin account (excluding themselves), **When** they attempt to delete or change that admin's role to "user", **Then** the action is rejected with an error notification explaining that the system must retain at least one admin account.
 
 ---
 
@@ -84,7 +94,7 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 
 - What happens when a user tries to log in with an incorrect password? A clear error notification should be shown without revealing whether the username exists.
 - How does the system handle an expired or invalid session? The user should be redirected to the login page with an appropriate message.
-- What happens when an admin deletes their own account? The action should be allowed (as admin can manage all accounts) and the admin session should be terminated.
+- What happens when an admin deletes their own account? The action MUST be rejected with an error notification — admins cannot delete themselves.
 - How does the system behave when the admin creates a user with a duplicate username? A validation error should be returned.
 - How does the system behave when the admin creates a user with a duplicate email? A validation error should be returned separate from the username error.
 - What happens when a regular user is deleted by an admin while the user has an active session? The user's next action should terminate their session.
@@ -93,7 +103,7 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 - How does the system handle a submission with an invalid email format? A specific validation error for the email field should be shown.
 - How does the system handle an admin attempt to create a user without assigning a role? The role field should default to "user" or be rejected with a validation error.
 - How does the system handle a regular user attempting to change their own role to "admin"? The action must be rejected with an authorization error.
-- What happens when the last remaining admin user changes their own role to "user"? The action should be allowed (or prevented with a warning that no admin would remain).
+- What happens when the last remaining admin user changes their own role to "user"? The action MUST be rejected — the system must always retain at least one admin account.
 
 ## Requirements *(mandatory)*
 
@@ -104,10 +114,10 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 - **FR-003**: System MUST redirect authenticated users to a personalized home page displaying a greeting with their first name. No additional content beyond the greeting and navigation bar is required on the home page.
 - **FR-004**: System MUST provide a navigation bar on all authenticated pages containing links to the user's profile and logout. Administrators MUST additionally see a link to user management. The logout option MUST appear as the rightmost navigation item.
 - **FR-005**: System MUST allow all authenticated users to view their own profile details (first name, last name, username, email).
-- **FR-006**: System MUST allow users to update their first name, last name, and email from their profile edit page. Password changes MUST require the user to be logged in and to provide their current password before accepting a new password.
+- **FR-006**: System MUST allow users to update their first name, last name, and email from their profile edit page. Password changes MUST require the user to be logged in and to provide their current password before accepting a new password. Partial updates are supported — any combination of updatable fields can be sent; fields not included in the request remain unchanged.
 - **FR-007**: System MUST prevent users from changing their username; attempting to do so MUST return an error notification.
 - **FR-008**: System MUST prevent regular users from viewing or modifying any other user's data. Attempts MUST result in an authorization error.
-- **FR-009**: Administrators MUST be able to view, create, update, and delete any user account in the system. Only administrators can change a user's role to "admin".
+- **FR-009**: Administrators MUST be able to view, create, update, and delete any user account in the system. Only administrators can change a user's role to "admin". Update operations accept partial payloads — only included fields are changed. Admin users MUST NOT be able to delete themselves.
 - **FR-010**: System MUST pre-seed a default administrator account on startup with documented credentials.
 - **FR-011**: System MUST pre-seed exactly 5 default regular users with mock data on startup for demonstration purposes.
 - **FR-012**: System MUST use in-memory data storage by default (H2), with Spring Data JPA auto-initialization creating the schema on startup if not present. Switching to another relational database engine (e.g., PostgreSQL) through configuration MUST automatically initialize the schema if not already present. Schema MUST NEVER be deleted — ddl-auto settings that drop existing schemas ("create", "create-drop") MUST NOT be used in any profile targeting persistent storage.
@@ -115,8 +125,9 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 - **FR-014**: System MUST display in-page notifications (toast-style) for all operation results including success confirmations, errors, and warnings. Notifications MUST appear in the top-right corner, auto-dismiss after 5 seconds, and stack vertically when multiple are triggered.
 - **FR-015**: System MUST disable the submit button and ignore additional submission attempts while a form submission request is in progress.
 - **FR-016**: System MUST terminate the user session and redirect to the login page upon explicit logout or session expiration.
-- **FR-017**: System MUST validate that all required user fields (firstName, lastName, username, email, password, role) are non-empty and well-formed before any create or update operation. Invalid or missing data MUST be rejected with specific error notifications identifying each invalid field and the reason. Username and email MUST be unique — any operation creating a duplicate MUST be rejected.
+- **FR-017**: System MUST validate that all required user fields (firstName, lastName, username, email, password, role) are non-empty and well-formed before any **create** operation. For **update** operations, validation MUST only apply to fields present in the request body; missing fields are left unchanged. Invalid or missing data MUST be rejected with specific error notifications identifying each invalid field and the reason. Username and email MUST be unique — any operation creating a duplicate MUST be rejected.
 - **FR-018**: System MUST provide a token refresh endpoint that accepts a valid refresh token and issues a new access token (5-minute expiry). The refresh token itself MUST remain valid for 30 minutes from issuance and MUST be rotated on each refresh request.
+- **FR-019**: System MUST ensure at least one admin account exists at all times. The system MUST reject any operation (account deletion by any user, or role change by the last admin) that would result in zero admin accounts remaining. In the UI, delete buttons for the current admin's own account and for the last remaining admin account MUST be hidden or disabled.
 
 ### Key Entities *(include if feature involves data)*
 
