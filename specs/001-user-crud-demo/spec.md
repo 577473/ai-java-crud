@@ -97,8 +97,8 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 
 - **FR-001**: System MUST authenticate users using username and password credentials. On successful authentication, an access token (JWT, 5-minute expiry) and a refresh token (30-minute expiry) MUST be issued.
 - **FR-002**: System MUST display a login page as the default landing page for unauthenticated users.
-- **FR-003**: System MUST redirect authenticated users to a personalized home page displaying a greeting with their first name.
-- **FR-004**: System MUST provide a navigation bar on all authenticated pages containing links to the user's profile edit page and logout option.
+- **FR-003**: System MUST redirect authenticated users to a personalized home page displaying a greeting with their first name. No additional content beyond the greeting and navigation bar is required on the home page.
+- **FR-004**: System MUST provide a navigation bar on all authenticated pages containing links to the user's profile and logout. Administrators MUST additionally see a link to user management. The logout option MUST appear as the rightmost navigation item.
 - **FR-005**: System MUST allow all authenticated users to view their own profile details (first name, last name, username, email).
 - **FR-006**: System MUST allow users to update their first name, last name, and email from their profile edit page. Password changes MUST require the user to be logged in and to provide their current password before accepting a new password.
 - **FR-007**: System MUST prevent users from changing their username; attempting to do so MUST return an error notification.
@@ -107,8 +107,8 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 - **FR-010**: System MUST pre-seed a default administrator account on startup with documented credentials.
 - **FR-011**: System MUST pre-seed exactly 5 default regular users with mock data on startup for demonstration purposes.
 - **FR-012**: System MUST use in-memory data storage by default (H2), with Spring Data JPA auto-initialization creating the schema on startup if not present. Switching to another relational database engine (e.g., PostgreSQL) through configuration MUST automatically initialize the schema if not already present. Schema MUST NEVER be deleted — ddl-auto settings that drop existing schemas ("create", "create-drop") MUST NOT be used in any profile targeting persistent storage.
-- **FR-013**: System MUST render all pages in a neon dark visual theme with a dark background and bright accent colors for interactive elements.
-- **FR-014**: System MUST display in-page notifications (toast-style) for all operation results including success confirmations, errors, and warnings.
+- **FR-013**: System MUST render all pages in a neon dark visual theme with a dark background (hex #0a0a0f) and bright accent colors (cyan #00ffff, magenta #ff00ff) for buttons, links, and highlights.
+- **FR-014**: System MUST display in-page notifications (toast-style) for all operation results including success confirmations, errors, and warnings. Notifications MUST appear in the top-right corner, auto-dismiss after 5 seconds, and stack vertically when multiple are triggered.
 - **FR-015**: System MUST disable the submit button and ignore additional submission attempts while a form submission request is in progress.
 - **FR-016**: System MUST terminate the user session and redirect to the login page upon explicit logout or session expiration.
 - **FR-017**: System MUST validate that all required user fields (firstName, lastName, username, email, password, role) are non-empty and well-formed before any create or update operation. Invalid or missing data MUST be rejected with specific error notifications identifying each invalid field and the reason. Username and email MUST be unique — any operation creating a duplicate MUST be rejected.
@@ -139,7 +139,7 @@ As a regular user, I want to edit my own profile details so that I can keep my i
 - The default admin account uses credentials admin / Admin123! (or similar documented defaults) and has the role "admin".
 - Mock regular users include a variety of names and roles, all with role "user".
 - The in-memory database is initialized and populated with seed data on application startup.
-- User passwords are never stored or transmitted in plain text.
+- User passwords are never stored or transmitted in plain text. Passwords MUST be hashed using BCrypt.
 - The target audience is developers and evaluators reviewing the demo — not end consumers.
 - Mobile responsiveness is not required for this demo version.
 - The application is served over HTTP (HTTPS not required for local demo).
