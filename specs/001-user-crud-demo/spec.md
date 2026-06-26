@@ -20,6 +20,10 @@
 - Q: Number of mocked users (FR-011). → A: Create exactly 5 pre-seeded regular users with mock data.
 - Q: Schema initialization (FR-012). → A: Use Spring Data JPA's auto-initialization (spring.jpa.hibernate.ddl-auto) to create the database schema on startup if not present. When switching database engines, the app initializes the schema if not already present. Schema must never be deleted (ddl-auto must not use "create" or "create-drop" in production-like profiles).
 
+### Session 2026-06-26
+
+- Q: Package manager for Node.js dependencies. → A: Use pnpm exclusively for all Node.js operations (install, add, Angular CLI). npm MUST NOT be used. Rationale: pnpm prevents auto-execution of scripts for security.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Admin Login and User Management (Priority: P1)

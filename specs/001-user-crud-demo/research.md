@@ -64,6 +64,12 @@
 - **Rationale**: Standard Spring Boot validation. Catches invalid state before service layer as required by FR-017.
 - **Alternatives considered**: Manual validation in service layer (redundant with JSR).
 
+### Package Manager: pnpm
+
+- **Decision**: pnpm for all Node.js package management
+- **Rationale**: Security — pnpm uses a strict content-addressable store and does not allow auto-execution of lifecycle scripts by default, reducing supply-chain attack risk. Non-negotiable requirement.
+- **Alternatives considered**: npm (allows script auto-execution, rejected for security), yarn (similar concerns).
+
 ### Frontend Testing: Jasmine + Karma
 
 - **Decision**: Angular default testing stack (Jasmine + Karma + TestBed)

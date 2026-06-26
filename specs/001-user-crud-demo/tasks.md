@@ -31,7 +31,7 @@ description: "Task list for User CRUD Demo feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create backend Maven project structure and pom.xml with Spring Boot 3.x, Spring Data JPA, Spring Security, H2, jjwt, Lombok, springdoc-openapi, and validation dependencies at `backend/pom.xml`
-- [ ] T002 [P] Create frontend Angular 20 project with Angular CLI at `frontend/` — generate app module, routing, and proxy.conf.json pointing to `http://localhost:8080/api`
+- [ ] T002 [P] Create frontend Angular 20 project with pnpm and Angular CLI at `frontend/` — run `pnpm dlx @angular/cli new frontend --package-manager=pnpm --routing --style=css`, then add proxy.conf.json pointing to `http://localhost:8080/api`
 - [ ] T003 [P] Create `.mvn/` wrapper and `mvnw`/`mvnw.cmd` scripts in `backend/`
 
 ---

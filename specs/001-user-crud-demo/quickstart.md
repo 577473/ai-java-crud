@@ -6,9 +6,9 @@
 ## Prerequisites
 
 - Java 21 JDK
-- Node.js 20+ with npm
+- Node.js 20+ with pnpm (install via `npm i -g pnpm` or your preferred method)
 - Maven (or use bundled `mvnw`)
-- Angular CLI 20: `npm install -g @angular/cli`
+- Angular CLI 20: `pnpm add -g @angular/cli`
 - IDE with Lombok annotation processing enabled (or run `mvn compile` which handles it via annotation processor)
 
 ## Setup & Run
@@ -32,7 +32,7 @@ The backend starts with H2 in-memory database. Seed data (admin + 4 mock users) 
 cd frontend
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start Angular dev server with proxy to backend (port 4200)
 ng serve

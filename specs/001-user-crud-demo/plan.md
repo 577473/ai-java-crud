@@ -14,19 +14,19 @@ Build a dual-module Maven web application (Spring Boot backend + Angular fronten
 
 **Language/Version**: Java 21 (backend) / TypeScript with Angular 20 (frontend)
 
-**Primary Dependencies**: Spring Boot 3.x, Spring Data JPA, Spring Security, H2 Database, jjwt (Java JWT library), Lombok, Angular 20, Angular CLI
+**Primary Dependencies**: Spring Boot 3.x, Spring Data JPA, Spring Security, H2 Database, jjwt (Java JWT library), Lombok, Angular 20, Angular CLI, pnpm (package manager)
 
 **Storage**: H2 in-memory database (swappable to PostgreSQL/MySQL via Spring profile configuration)
 
 **Testing**: JUnit 5 + Mockito (backend unit/integration), Jasmine + Karma (frontend unit), Angular testing utilities
 
-**Target Platform**: Local development server (backend :8080, frontend :4200 with proxy to backend)
+**Target Platform**: Local development server (backend :8080, frontend :4200 with proxy to backend). Frontend uses pnpm for all package management.
 
 **Project Type**: Web application (Spring Boot REST API + Angular SPA)
 
 **Performance Goals**: < 3s login, < 2s profile load, < 1s save operations (local demo)
 
-**Constraints**: Stateless JWT auth, H2 with Spring JPA abstraction, in-memory seed data on startup, neon dark theme
+**Constraints**: Stateless JWT auth, H2 with Spring JPA abstraction, in-memory seed data on startup, neon dark theme, pnpm-only for all Node.js operations
 
 **Scale/Scope**: Demo application — single-user admin management, handful of pre-seeded users
 
@@ -140,6 +140,12 @@ frontend/
 - Favor Spring constructor injection over field injection
 - Use `@RequiredArgsConstructor` (Lombok) to auto-generate constructor for `final` fields
 - Explicit `@Autowired` on constructors is optional (Spring auto-wires single-constructor beans)
+
+### Package Management
+
+- All Node.js package management MUST use pnpm. npm and yarn are forbidden.
+- Install Angular CLI globally: `pnpm add -g @angular/cli`
+- Install project dependencies: `pnpm install` (never `npm install`)
 
 ### Default Interface Implementation Comments
 
