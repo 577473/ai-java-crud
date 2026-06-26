@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: h2
+
+jwt:
+  access:
+    secret: "javacrud-access-secret-key-must-be-at-least-256-bits-long-for-hmac-sha"
+    expiration: 300000
+  refresh:
+    secret: "javacrud-refresh-secret-key-must-be-at-least-256-bits-long-for-hmac-sha"
+    expiration: 1800000
