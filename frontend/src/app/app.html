@@ -1,10 +1,15 @@
-<nav *ngIf="authService.isLoggedIn()" class="navbar">
-  <div class="nav-brand">JavaCRUD</div>
-  <div class="nav-links">
-    <a routerLink="/home" routerLinkActive="active">Home</a>
-    <a routerLink="/profile" routerLinkActive="active">Profile</a>
-    <a *ngIf="authService.isAdmin()" routerLink="/admin" routerLinkActive="active">User Management</a>
-    <a (click)="logout()" routerLink="/login" class="logout">Logout</a>
-  </div>
-</nav>
+@if (authService.isLoggedIn()) {
+  <nav class="navbar">
+    <div class="nav-brand">JavaCRUD</div>
+    <div class="nav-links">
+      <a routerLink="/home" routerLinkActive="active">Home</a>
+      <a routerLink="/profile" routerLinkActive="active">Profile</a>
+      @if (authService.isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active">User Management</a>
+      }
+      <a (click)="logout()" routerLink="/login" class="logout">Logout</a>
+    </div>
+  </nav>
+}
 <router-outlet />
+<app-notification />

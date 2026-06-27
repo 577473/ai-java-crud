@@ -1,43 +1,37 @@
-import { Component } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { Component, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { form, FormField, required, submit } from '@angular/forms/signals';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [FormField],
   template: `
     <div class="login-container">
       <div class="login-card">
         <h1>JavaCRUD</h1>
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <form (submit)="onSubmit(); $event.preventDefault()">
           <div class="form-group">
             <label for="username">Username</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              [(ngModel)]="username"
-              required
-              placeholder="Enter username"
-            />
+            <input id="username" type="text" [formField]="loginForm.username" placeholder="Enter username" />
+            @if (loginForm.username().touched() && loginForm.username().errors().length) {
+              <div class="field-error">{{ loginForm.username().errors()[0].message }}</div>
+            }
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              [(ngModel)]="password"
-              required
-              placeholder="Enter password"
-            />
+            <input id="password" type="password" [formField]="loginForm.password" placeholder="Enter password" />
+            @if (loginForm.password().touched() && loginForm.password().errors().length) {
+              <div class="field-error">{{ loginForm.password().errors()[0].message }}</div>
+            }
           </div>
-          <div class="error" *ngIf="error">{{ error }}</div>
-          <button type="submit" [disabled]="loading">
-            {{ loading ? 'Logging in...' : 'Login' }}
+          @if (error()) {
+            <div class="error">{{ error() }}</div>
+          }
+          <button type="submit" [disabled]="loginForm().invalid() || loading()">
+            {{ loading() ? 'Logging in...' : 'Login' }}
           </button>
         </form>
       </div>
@@ -84,6 +78,11 @@ import { AuthService } from '../services/auth.service';
       outline: none;
       border-color: #00ffff;
     }
+    .field-error {
+      color: #ff5555;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
     .error {
       color: #ff00ff;
       margin-bottom: 1rem;
@@ -106,29 +105,32 @@ import { AuthService } from '../services/auth.service';
   `]
 })
 export class LoginComponent {
-  username = '';
-  password = '';
-  loading = false;
-  error = '';
+  private readonly loginModel = signal({ username: '', password: '' });
+  protected readonly loginForm = form(this.loginModel, (s) => {
+    required(s.username, { message: 'Username is required' });
+    required(s.password, { message: 'Password is required' });
+  });
+  protected readonly loading = signal(false);
+  protected readonly error = signal('');
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {}
 
-  onSubmit(): void {
-    if (!this.username || !this.password) return;
-    this.loading = true;
-    this.error = '';
-    this.authService.login(this.username, this.password).subscribe({
-      next: () => {
-        this.loading = false;
+  async onSubmit(): Promise<void> {
+    try {
+      await submit(this.loginForm, async () => {
+        this.loading.set(true);
+        this.error.set('');
+        const { username, password } = this.loginModel();
+        await firstValueFrom(this.authService.login(username, password));
+        this.loading.set(false);
         this.router.navigate(['/home']);
-      },
-      error: (err) => {
-        this.loading = false;
-        this.error = err.error?.error || 'Login failed';
-      }
-    });
+      });
+    } catch {
+      this.loading.set(false);
+      this.error.set('Login failed');
+    }
   }
 }

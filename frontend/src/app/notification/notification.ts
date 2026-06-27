@@ -1,23 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { NotificationService, Notification } from '../services/notification.service';
 
 @Component({
   selector: 'app-notification',
   standalone: true,
-  imports: [CommonModule],
   template: `
     <div class="notification-container">
-      <div
-        *ngFor="let n of activeNotifications"
-        class="notification"
-        [class.success]="n.type === 'success'"
-        [class.error]="n.type === 'error'"
-        [class.warning]="n.type === 'warning'"
-      >
-        {{ n.message }}
-      </div>
+      @for (n of activeNotifications(); track n.id) {
+        <div class="notification" [class.success]="n.type === 'success'" [class.error]="n.type === 'error'" [class.warning]="n.type === 'warning'">
+          {{ n.message }}
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -47,16 +41,16 @@ import { NotificationService, Notification } from '../services/notification.serv
   `]
 })
 export class NotificationComponent implements OnInit, OnDestroy {
-  activeNotifications: Notification[] = [];
+  protected readonly activeNotifications = signal<Notification[]>([]);
   private sub?: Subscription;
 
   constructor(private notificationService: NotificationService) {}
 
   ngOnInit(): void {
-    this.sub = this.notificationService.notifications$.subscribe(n => {
-      this.activeNotifications.push(n);
+    this.sub = this.notificationService.notifications$.subscribe((n) => {
+      this.activeNotifications.update((list) => [...list, n]);
       setTimeout(() => {
-        this.activeNotifications = this.activeNotifications.filter(x => x.id !== n.id);
+        this.activeNotifications.update((list) => list.filter((x) => x.id !== n.id));
       }, 3000);
     });
   }

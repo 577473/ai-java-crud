@@ -1,19 +1,21 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal } from '@angular/core';
 import { UserService } from '../services/user.service';
-import { AuthService } from '../services/auth.service';
 import { User } from '../models/user.model';
-import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
   template: `
     <div class="home-container">
-      <p *ngIf="loading" class="loading">Loading...</p>
-      <p *ngIf="loadError" class="error">{{ loadError }}</p>
-      <h1 *ngIf="user">Welcome, {{ user.firstName }}!</h1>
+      @if (loading()) {
+        <p class="loading">Loading...</p>
+      }
+      @if (loadError()) {
+        <p class="error">{{ loadError() }}</p>
+      }
+      @if (user(); as u) {
+        <h1>Welcome, {{ u.firstName }}!</h1>
+      }
     </div>
   `,
   styles: [`
@@ -29,30 +31,26 @@ import { RouterModule } from '@angular/router';
   `]
 })
 export class HomeComponent implements OnInit {
-  user: User | null = null;
-  loading = false;
-  loadError = '';
+  protected readonly user = signal<User | null>(null);
+  protected readonly loading = signal(false);
+  protected readonly loadError = signal('');
 
-  constructor(
-    private userService: UserService,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  constructor(private userService: UserService) {}
 
   ngOnInit(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.userService.getCurrentUser().subscribe({
       next: (u) => {
-        this.loading = false;
-        this.user = u;
-        this.cdr.detectChanges();
+        this.loading.set(false);
+        this.user.set(u);
       },
       error: (err) => {
-        this.loading = false;
-        this.loadError = err.status ? `Error ${err.status}: ${err.statusText}` : 'Failed to load. Is the backend running?';
+        this.loading.set(false);
+        this.loadError.set(
+          err.status ? `Error ${err.status}: ${err.statusText}` : 'Failed to load. Is the backend running?',
+        );
         console.error('Home load error:', err);
-        this.cdr.detectChanges();
-      }
+      },
     });
   }
 }
