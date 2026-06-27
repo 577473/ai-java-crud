@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "angular-architect": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/angular-architect/SKILL.md",
+      "computedHash": "bb4df7ee3ad3cc43838f417f2fc3e735470f82d78bbe0e5874bb12735d9ac302"
+    },
+    "angular-developer": {
+      "source": "angular/angular",
+      "sourceType": "github",
+      "skillPath": "skills/dev-skills/angular-developer/SKILL.md",
+      "computedHash": "dc0d00affef561cd0181f5e2c38723fe645a1ecef591655d2b03ad95685812c9"
+    }
+  }
+}
